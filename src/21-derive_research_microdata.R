@@ -6,6 +6,8 @@
 library(data.table)
 library(lubridate)
 library(magrittr)
+library(readxl)
+library(tidyverse)
 
 # use all available CPUs
 setDTthreads(0)
@@ -82,43 +84,70 @@ fetoinfant <-
     date_of_conception_y %in% c(1989, 1999, 2009, 2014)
     ]
 
+# delete space after icd code
+
+fetoinfant <-
+  fetoinfant[, 
+             cod_icd10 := gsub(" ", "", cod_icd10)]
+
 # Recode cause of death categories --------------------------------
 
-cod_codes <- list(
-  Maternal = c('P00', 'P01'),
-  PCML = c('P02', 'P03', 'P04', 'P10', 'P11',
-           'P12', 'P13', 'P14', 'P15'),
-  Prematurity = c('P05', 'P07', 'P08'),
-  Respiratory = c('P20', 'P21', 'P22', 'P23', 'P24', 'P25',
-                  'P26', 'P27', 'P28'),
-  External = c('P35','P36','P37','P38','P39',
-               paste0('A', formatC(0:99, width = 2, flag = '0')),
-               paste0('B', formatC(0:99, width = 2, flag = '0')),
-               paste0('V', formatC(0:99, width = 2, flag = '0')),
-               paste0('W', formatC(0:99, width = 2, flag = '0')),
-               paste0('X', formatC(c(0:59, 85:99), width = 2, flag = '0')),
-               paste0('Y', formatC(c(0:9, 10:36, 40:84), width = 2, flag = '0'))
-  ),
-  Unspecific = c('P95', paste0('R', formatC(0:99, width = 2, flag = '0'))),
-  Neoplasms = c(paste0('Q', formatC(0:99, width = 2, flag = '0')),
-                paste0('C', formatC(0:99, width = 2, flag = '0')),
-                paste0('D', formatC(0:49, width = 2, flag = '0')))
-)
+cod_codes <- read_xlsx("./dat/10-cod-list/cod.xlsx")[-c(3,4)] 
+
+
+# cod_codes <- list(
+#   Maternal = c('P00', 'P01'),
+#   PCML = c('P02', 'P03', 'P04', 'P10', 'P11',
+#            'P12', 'P13', 'P14', 'P15'),
+#   Prematurity = c('P05', 'P07', 'P08'),
+#   Respiratory = c('P20', 'P21', 'P22', 'P23', 'P24', 'P25',
+#                   'P26', 'P27', 'P28'),
+#   External = c('P35','P36','P37','P38','P39',
+#                paste0('A', formatC(0:99, width = 2, flag = '0')),
+#                paste0('B', formatC(0:99, width = 2, flag = '0')),
+#                paste0('V', formatC(0:99, width = 2, flag = '0')),
+#                paste0('W', formatC(0:99, width = 2, flag = '0')),
+#                paste0('X', formatC(c(0:59, 85:99), width = 2, flag = '0')),
+#                paste0('Y', formatC(c(0:9, 10:36, 40:84), width = 2, flag = '0'))
+#   ),
+#   Unspecific = c('P95', paste0('R', formatC(0:99, width = 2, flag = '0'))),
+#   Neoplasms = c(paste0('Q', formatC(0:99, width = 2, flag = '0')),
+#                 paste0('C', formatC(0:99, width = 2, flag = '0')),
+#                 paste0('D', formatC(0:49, width = 2, flag = '0')))
+# )
+
+
+fetoinfant <- merge(fetoinfant, cod_codes, by = "cod_icd10", all = T)
+fetoinfant <- fetoinfant[ !is.na(type)] 
+
+fetoinfant <- fetoinfant %>% 
+  mutate(cod_cat = case_when(
+    (date_of_delivery_y == 2014 & type == "fetus" & cod_icd10 == "") ~ "Other",
+    (date_of_delivery_y == 2015 & type == "fetus" & cod_icd10 == "") ~ "Other",
+    (cod_cat == "Maternal Complications" & age_at_death_d >= 100) ~ "Other",
+    (cod_cat == "Labour, Cord, Membrane and Labour Complications" & age_at_death_d >= 100) ~ "Other",
+    TRUE ~ cod_cat
+  ))
+
+
 
 fetoinfant[
   ,
   cod_cat := fcase(
-    substr(cod_icd10,1,3)%in%cod_codes$Maternal, 'Maternal',
-    substr(cod_icd10,1,3)%in%cod_codes$PCML, 'PCML',
-    substr(cod_icd10,1,3)%in%cod_codes$Prematurity, 'Prematurity',
-    substr(cod_icd10,1,3)%in%cod_codes$Respiratory, 'Respiratory',
-    substr(cod_icd10,1,3)%in%cod_codes$External, 'External',
-    substr(cod_icd10,1,3)%in%cod_codes$Unspecific, 'Unspecific',
-    substr(cod_icd10,1,3)%in%cod_codes$Neoplasms, 'Neoplasms',
-    !is.na(cod_icd10), 'Other',
+    # substr(cod_icd10,1,3)%in%cod_codes$Maternal, 'Maternal',
+    # substr(cod_icd10,1,3)%in%cod_codes$PCML, 'PCML',
+    # substr(cod_icd10,1,3)%in%cod_codes$Prematurity, 'Prematurity',
+    # substr(cod_icd10,1,3)%in%cod_codes$InfectionsParacitesOperations, 'InfectionsParacitesOperations',
+    # substr(cod_icd10,1,3)%in%cod_codes$ViolenceAccidents, 'ViolenceAccidents',
+    # substr(cod_icd10,1,3)%in%cod_codes$UnspecificStillbirth, 'UnspecificStillbirth',
+    # substr(cod_icd10,1,3)%in%cod_codes$SuddenInfantDeath, 'SuddenInfantDeath',
+    # substr(cod_icd10,1,3)%in%cod_codes$TreatableNeoplasms, 'TreatableNeoplasms',
+    # substr(cod_icd10,1,3)%in%cod_codes$UntreatableNeoplasms, 'UntreatableNeoplasms',
+    !is.na(cod_icd10), cod_cat,
     default = NA
   )
 ]
+
 
 # Add flags for vital events --------------------------------------
 

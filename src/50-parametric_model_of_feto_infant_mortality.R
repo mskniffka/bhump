@@ -209,7 +209,7 @@ FitFetoinfantSurvival <-
             .x %>%
             summarise(
               # log hazard at t=0
-              loga1 = log(first(m)),
+              loga1 = log(ifelse(first(m) == 0, mean(m), first(m))),
               # log relative rate of ontogenescent mortality decline
               logb =
                 log(abs((log(median(m[1:5]))-
@@ -404,14 +404,19 @@ fit$origin <-
 
 # by cause of death
 fit$maternal <- FitFetoinfantSurvival(filt$maternal, lambda = 0.01)
-fit$neoplasm <- FitFetoinfantSurvival(filt$neoplasm, lambda = 0.01)
-fit$external <- FitFetoinfantSurvival(filt$external, simulate = FALSE,
+fit$TreatableNeoplasms <- FitFetoinfantSurvival(filt$TreatableNeoplasms, lambda = 0.01)
+fit$UntreatableNeoplasms <- FitFetoinfantSurvival(filt$UntreatableNeoplasms, lambda = 0.01)
+fit$InfectionsParacitesOperations <- FitFetoinfantSurvival(filt$InfectionsParacitesOperations, simulate = FALSE,
                                       lambda = 0.01)
+fit$ViolenceAccidents <- FitFetoinfantSurvival(filt$ViolenceAccidents, simulate = FALSE,
+                                      lambda = 0.1) 
+
 fit$PCML <- FitFetoinfantSurvival(filt$PCML, lambda = 0.01)
-fit$Prematurity <- FitFetoinfantSurvival(filt$Prematurity, lambda = 0.05)
+fit$Prematurity <- FitFetoinfantSurvival(filt$Prematurity, lambda = 0.01)
 fit$Other <- FitFetoinfantSurvival(filt$Other, lambda = 0.01)
-fit$Respiratory <- FitFetoinfantSurvival(filt$Respiratory)
-fit$Unspecific <- FitFetoinfantSurvival(filt$Unspecific, lambda = 0.001)
+
+fit$UnspecificStillbirth <- FitFetoinfantSurvival(filt$UnspecificStillbirth)
+fit$SuddenInfantDeath <- FitFetoinfantSurvival(filt$SuddenInfantDeath, lambda = 0.1) 
 
 # Plot hazards --------------------------------------------------
 
@@ -589,34 +594,62 @@ fig_spec$ExportPDF(
 fig$hzrd_maternal <- PlotHazards(fit$maternal)
 fig_spec$ExportPDF(
   fig$hzrd_maternal,
-  '50-hzrd-maternal',
+  '50-hzrd-maternal_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
 )
 
-fig$hzrd_neoplasm <- PlotHazards(fit$neoplasm)
+fig$hzrd_TreatableNeoplasms <- PlotHazards(fit$TreatableNeoplasms)
 fig_spec$ExportPDF(
-  fig$hzrd_neoplasm,
-  '50-hzrd-neoplasm',
+  fig$hzrd_TreatableNeoplasms,
+  '50-hzrd-TreatableNeoplasms_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
 )
 
-fig$hzrd_external <- PlotHazards(fit$external)
+fig$hzrd_UntreatableNeoplasms <- PlotHazards(fit$UntreatableNeoplasms)
 fig_spec$ExportPDF(
-  fig$hzrd_external,
-  '50-hzrd-external',
+  fig$hzrd_UntreatableNeoplasms,
+  '50-hzrd-UntreatableNeoplasms_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
 )
 
-fig$hzrd_unspecific <- PlotHazards(fit$Unspecific)
+
+fig$hzrd_InfectionsParacitesOperations <- PlotHazards(fit$InfectionsParacitesOperations)
 fig_spec$ExportPDF(
-  fig$hzrd_unspecific,
-  '50-hzrd-unspecific',
+  fig$hzrd_InfectionsParacitesOperations,
+  '50-hzrd-InfectionsParacitesOperations_v2',
+  'out',
+  width = fig_spec$width,
+  height = fig_spec$width*0.4
+)
+
+fig$hzrd_ViolenceAccidents <- PlotHazards(fit$ViolenceAccidents) #notworking
+fig_spec$ExportPDF(
+  fig$hzrd_ViolenceAccidents,
+  '50-hzrd-ViolenceAccidents_v2',
+  'out',
+  width = fig_spec$width,
+  height = fig_spec$width*0.4
+)
+
+fig$hzrd_UnspecificStillbirth <- PlotHazards(fit$UnspecificStillbirth)
+fig_spec$ExportPDF(
+  fig$hzrd_UnspecificStillbirth,
+  '50-hzrd-UnspecificStillbirth_v2',
+  'out',
+  width = fig_spec$width,
+  height = fig_spec$width*0.4
+)
+
+fig$hzrd_SuddenInfantDeath <- PlotHazards(fit$SuddenInfantDeath) #notworking
+fig_spec$ExportPDF(
+  fig$hzrd_SuddenInfantDeath,
+  '50-hzrd-SuddenInfantDeath_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
@@ -625,25 +658,25 @@ fig_spec$ExportPDF(
 fig$hzrd_pcml <- PlotHazards(fit$PCML)
 fig_spec$ExportPDF(
   fig$hzrd_pcml,
-  '50-hzrd-pcml',
+  '50-hzrd-pcml_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
 )
 
-fig$hzrd_respiratory <- PlotHazards(fit$Respiratory)
-fig_spec$ExportPDF(
-  fig$hzrd_respiratory,
-  '50-hzrd-respiratory',
-  'out',
-  width = fig_spec$width,
-  height = fig_spec$width*0.4
-)
+# fig$hzrd_respiratory <- PlotHazards(fit$Respiratory)
+# fig_spec$ExportPDF(
+#   fig$hzrd_respiratory,
+#   '50-hzrd-respiratory',
+#   'out',
+#   width = fig_spec$width,
+#   height = fig_spec$width*0.4
+# )
 
 fig$hzrd_other <- PlotHazards(fit$Other)
 fig_spec$ExportPDF(
   fig$hzrd_other,
-  '50-hzrd-other',
+  '50-hzrd-other_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4
@@ -652,7 +685,7 @@ fig_spec$ExportPDF(
 fig$hzrd_prematurity <- PlotHazards(fit$Prematurity)
 fig_spec$ExportPDF(
   fig$hzrd_prematurity,
-  '50-hzrd-prematurity',
+  '50-hzrd-prematurity_v2',
   'out',
   width = fig_spec$width,
   height = fig_spec$width*0.4

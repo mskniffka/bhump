@@ -89,23 +89,39 @@ filt$maternal <-
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'Maternal',
+    d_out = 'destination2', death_state_name = 'Maternal Complications',
     breaks = cnst$lifetable_breaks
   )
-filt$neoplasm <-
+filt$TreatableNeoplasms <-
   fetoinfant_event_histories %>%
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'Neoplasms',
+    d_out = 'destination2', death_state_name = 'Treatable Neoplasms',
     breaks = cnst$lifetable_breaks
   )
-filt$external <-
+filt$UntreatableNeoplasms <-
   fetoinfant_event_histories %>%
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'External',
+    d_out = 'destination2', death_state_name = 'Untreatable Neoplasms',
+    breaks = cnst$lifetable_breaks
+  )
+filt$InfectionsParacitesOperations <-
+  fetoinfant_event_histories %>%
+  filter(date_of_conception_y == 2014) %>%
+  FILT(
+    df = .,
+    d_out = 'destination2', death_state_name = 'Infections,  Paracited and Operations',
+    breaks = cnst$lifetable_breaks
+  )
+filt$ViolenceAccidents <-
+  fetoinfant_event_histories %>%
+  filter(date_of_conception_y == 2014) %>%
+  FILT(
+    df = .,
+    d_out = 'destination2', death_state_name = 'Violence and Accidents',
     breaks = cnst$lifetable_breaks
   )
 filt$PCML <-
@@ -113,7 +129,7 @@ filt$PCML <-
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'PCML',
+    d_out = 'destination2', death_state_name = 'Placenta, Cord, Membrane,  Labour Complications',
     breaks = cnst$lifetable_breaks
   )
 filt$Prematurity <-
@@ -121,7 +137,7 @@ filt$Prematurity <-
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'Prematurity',
+    d_out = 'destination2', death_state_name = 'Prematurely',
     breaks = cnst$lifetable_breaks
   )
 filt$Other <-
@@ -132,20 +148,20 @@ filt$Other <-
     d_out = 'destination2', death_state_name = 'Other',
     breaks = cnst$lifetable_breaks
   )
-filt$Respiratory <-
+filt$UnspecificStillbirth <-
   fetoinfant_event_histories %>%
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'Respiratory',
+    d_out = 'destination2', death_state_name = 'Unspecific Stillbirth',
     breaks = cnst$lifetable_breaks
   )
-filt$Unspecific <-
+filt$SuddenInfantDeath <-
   fetoinfant_event_histories %>%
   filter(date_of_conception_y == 2014) %>%
   FILT(
     df = .,
-    d_out = 'destination2', death_state_name = 'Unspecific',
+    d_out = 'destination2', death_state_name = 'Sudden Infant Death',
     breaks = cnst$lifetable_breaks
   )
 
