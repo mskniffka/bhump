@@ -92,7 +92,7 @@ fetoinfant <-
 
 # Recode cause of death categories --------------------------------
 
-cod_codes <- read_xlsx("./dat/10-cod-list/cod.xlsx")[-c(3,4)] 
+cod_codes <- read_xlsx("./dat/10-cod-list/cod.xlsx")[-c(3,4,5,6)] 
 
 
 # cod_codes <- list(
